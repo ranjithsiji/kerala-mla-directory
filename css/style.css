@@ -383,3 +383,42 @@ body {
 [data-theme="dark"] .panchayat-row {
     background: rgba(255, 255, 255, 0.03);
 }
+
+/* Native Modal Content Styling */
+#modalBodyText {
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+#modalBodyText .mw-parser-output {
+    font-size: 1rem;
+}
+
+#modalBodyText table.table {
+    background: transparent;
+    color: inherit;
+}
+
+[data-theme="dark"] #modalBodyText table th {
+    color: #f5f6fa;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] #modalBodyText table td {
+    color: #dcdde1;
+}
+
+/* Hide some Wikipedia specific elements that might look messy */
+#modalBodyText .mw-editsection,
+#modalBodyText .navbox,
+#modalBodyText .reflist,
+#modalBodyText .ambox {
+    display: none !important;
+}
+
+#modalBodyText img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin: 10px 0;
+}

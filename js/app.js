@@ -154,28 +154,88 @@ $(document).ready(function () {
                 'cons-wikidata': constituencyId
             };
 
-            $(document).off('click', '.btn-wiki-popup').on('click', '.btn-wiki-popup', function () {
+            $(document).off('click', '.btn-wiki-popup').on('click', '.btn-wiki-popup', async function () {
                 let url = $(this).data('url');
                 const type = $(this).data('type');
+                if (!url && type) url = popupMap[type];
 
-                // Fallback to popupMap if no data-url (for hardcoded buttons)
-                if (!url && type) {
-                    url = popupMap[type];
+                if (!url) {
+                    alert("Information not available.");
+                    return;
                 }
 
-                if (url) {
-                    // Mobile wikipedia optimization
-                    if (url.includes('en.wikipedia.org')) {
-                        url = url.replace('en.wikipedia.org', 'en.m.wikipedia.org');
-                    } else if (url.includes('ml.wikipedia.org')) {
-                        url = url.replace('ml.wikipedia.org', 'ml.m.wikipedia.org');
+                $('#modalTitle').text('');
+                $('#modalBodyText').empty();
+                $('#modalLoader').removeClass('d-none');
+                $('#modalInfoContent').addClass('d-none');
+                $('#infoModal').modal('show');
+
+                try {
+                    if (url.includes('wikipedia.org')) {
+                        const lang = url.includes('ml.wikipedia.org') ? 'ml' : 'en';
+                        const title = decodeURIComponent(url.split('/wiki/').pop());
+                        const data = await WikiAPI.getWikipediaFullHTML(lang, title);
+                        if (data) {
+                            $('#modalTitle').html(data.title);
+                            $('#modalBodyText').html(data.text);
+                            // Fix links to open in new tab within the injected HTML
+                            $('#modalBodyText a').attr('target', '_blank');
+                        }
+                    } else if (url.includes('wikidata.org')) {
+                        const qid = url.split('/').pop().split('#')[0];
+                        const entity = await WikiAPI.getWikidataEntity(qid);
+                        if (entity) {
+                            renderWikidata(entity);
+                        }
                     }
-                    $('#infoFrame').attr('src', url);
-                    $('#infoModal').modal('show');
-                } else {
-                    alert("Information not available.");
+                } catch (e) {
+                    $('#modalBodyText').text('Error loading content.');
+                } finally {
+                    $('#modalLoader').addClass('d-none');
+                    $('#modalInfoContent').removeClass('d-none');
                 }
             });
+
+            function renderWikidata(entity) {
+                const label = entity.labels.en ? entity.labels.en.value : (entity.labels.ml ? entity.labels.ml.value : 'Entity');
+                const description = entity.descriptions.en ? entity.descriptions.en.value : (entity.descriptions.ml ? entity.descriptions.ml.value : '');
+
+                $('#modalTitle').text(label);
+
+                let html = `<p class="lead text-muted">${description}</p>`;
+                html += `<div class="table-responsive mt-4"><table class="table table-hover border"><tbody>`;
+
+                // Key properties to show (just a few major ones for brevity and clarity)
+                const majorProps = {
+                    'P31': 'Instance of',
+                    'P131': 'Located in',
+                    'P569': 'Born',
+                    'P571': 'Inception',
+                    'P2046': 'Area',
+                    'P102': 'Political party',
+                    'P39': 'Position held'
+                };
+
+                for (const pid in majorProps) {
+                    if (entity.claims[pid]) {
+                        const claim = entity.claims[pid][0];
+                        let value = 'Value';
+                        if (claim.mainsnak.datavalue) {
+                            const dv = claim.mainsnak.datavalue;
+                            if (dv.type === 'string') value = dv.value;
+                            else if (dv.type === 'wikibase-entityid') value = dv.value.id; // Could fetch label but keeping simple
+                            else if (dv.type === 'time') value = new Date(dv.value.time.replace('+', '')).toLocaleDateString();
+                            else if (dv.type === 'quantity') value = `${parseFloat(dv.value.amount).toLocaleString()} ${dv.value.unit.split('/').pop() === 'Q712226' ? 'km²' : ''}`;
+                        }
+                        html += `<tr><th style="width: 30%">${majorProps[pid]}</th><td>${value}</td></tr>`;
+                    }
+                }
+
+                html += `</tbody></table></div>`;
+                html += `<div class="mt-4"><a href="https://www.wikidata.org/wiki/${entity.id}" target="_blank" class="btn btn-outline-info btn-sm">View full details on Wikidata</a></div>`;
+
+                $('#modalBodyText').html(html);
+            }
 
             $('#infoModal').on('hidden.bs.modal', function () {
                 $('#infoFrame').attr('src', '');

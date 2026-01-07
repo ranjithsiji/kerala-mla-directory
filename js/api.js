@@ -104,6 +104,36 @@ class WikiAPI {
         }
     }
 
+    static async getWikipediaFullHTML(lang, pageTitle) {
+        const url = `https://${lang}.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(pageTitle)}&format=json&prop=text|displaytitle&origin=*`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.parse) {
+                return {
+                    title: data.parse.displaytitle,
+                    text: data.parse.text['*']
+                };
+            }
+            return null;
+        } catch (error) {
+            console.error('Error fetching full Wikipedia HTML:', error);
+            return null;
+        }
+    }
+
+    static async getWikidataEntity(qid) {
+        const url = `https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`;
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.entities[qid];
+        } catch (error) {
+            console.error('Error fetching Wikidata entity:', error);
+            return null;
+        }
+    }
+
     static async getConstituencyDetails(constituencyId) {
         const cId = constituencyId.split('/').pop();
         const query = `
