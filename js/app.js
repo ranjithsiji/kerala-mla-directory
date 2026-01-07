@@ -335,7 +335,13 @@ $(document).ready(function () {
 
     async function initMap(constituencyId) {
         if (!map) {
-            map = L.map('map').setView([10.5, 76.5], 7);
+            map = L.map('map', {
+                fullscreenControl: true,
+                fullscreenControlOptions: {
+                    position: 'topleft'
+                }
+            }).setView([10.5, 76.5], 7);
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
