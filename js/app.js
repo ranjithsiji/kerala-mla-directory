@@ -334,46 +334,62 @@ $(document).ready(function () {
     }
 
     async function initMap(constituencyId) {
-        if (!map) {
-            map = L.map('map', {
-                fullscreenControl: true,
-                fullscreenControlOptions: {
-                    position: 'topleft'
-                }
-            }).setView([10.5, 76.5], 7);
+        try {
+            if (!map) {
+                map = L.map('map', {
+                    fullscreenControl: true,
+                    fullscreenControlOptions: {
+                        position: 'topleft'
+                    }
+                }).setView([10.5, 76.5], 7);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-        } else {
-            map.eachLayer((layer) => {
-                if (layer instanceof L.GeoJSON || (layer instanceof L.TileLayer && !layer._url.includes('openstreetmap'))) {
-                    map.removeLayer(layer);
-                }
-            });
-        }
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            } else {
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.GeoJSON || (layer instanceof L.TileLayer && !layer._url.includes('openstreetmap'))) {
+                        map.removeLayer(layer);
+                    }
+                });
+            }
 
-        const geoData = await WikiAPI.getConstituencyGeoshapes(constituencyId);
-        if (geoData && geoData.results.bindings.length > 0) {
-            const layers = L.featureGroup().addTo(map);
+            // Ensure map is properly sized
+            setTimeout(() => map.invalidateSize(), 100);
 
-            for (const item of geoData.results.bindings) {
-                const geoshapeUrl = item.geoshape.value;
-                const geojson = await WikiAPI.getGeojson(geoshapeUrl);
-                if (geojson) {
-                    L.geoJSON(geojson, {
-                        style: {
-                            color: '#0062ff',
-                            weight: 2,
-                            fillColor: '#0062ff',
-                            fillOpacity: 0.2
+            const geoData = await WikiAPI.getConstituencyGeoshapes(constituencyId);
+            if (geoData && geoData.results.bindings.length > 0) {
+                const layers = L.featureGroup().addTo(map);
+                let successCount = 0;
+
+                for (const item of geoData.results.bindings) {
+                    try {
+                        const geoshapeUrl = item.geoshape.value;
+                        const geojson = await WikiAPI.getGeojson(geoshapeUrl);
+                        if (geojson) {
+                            L.geoJSON(geojson, {
+                                style: {
+                                    color: '#0062ff',
+                                    weight: 2,
+                                    fillColor: '#0062ff',
+                                    fillOpacity: 0.2
+                                }
+                            }).bindPopup(item.itemLabel.value).addTo(layers);
+                            successCount++;
                         }
-                    }).bindPopup(item.itemLabel.value).addTo(layers);
+                    } catch (err) {
+                        console.error('Failed to load geoshape for', item.itemLabel.value, err);
+                    }
+                }
+
+                console.log(`Loaded ${successCount} of ${geoData.results.bindings.length} geoshapes`);
+
+                if (layers.getLayers().length > 0) {
+                    map.fitBounds(layers.getBounds(), { padding: [20, 20] });
                 }
             }
-            if (layers.getLayers().length > 0) {
-                map.fitBounds(layers.getBounds(), { padding: [20, 20] });
-            }
+        } catch (error) {
+            console.error('Map initialization error:', error);
         }
     }
 
