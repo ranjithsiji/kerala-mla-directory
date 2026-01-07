@@ -127,9 +127,13 @@ class WikiAPI {
     static async getConstituencyGeoshapes(constituencyId) {
         const cId = constituencyId.split('/').pop();
         const query = `
-            SELECT ?item ?itemLabel ?geoshape WHERE {
+            SELECT ?item ?itemLabel ?geoshape ?wikipedia WHERE {
                 ?item wdt:P7938 wd:${cId}.
                 ?item wdt:P3896 ?geoshape.
+                OPTIONAL {
+                    ?wikipedia schema:about ?item;
+                               schema:isPartOf <https://en.wikipedia.org/>.
+                }
                 SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
             }
         `;

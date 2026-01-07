@@ -343,3 +343,43 @@ body {
         font-size: 2rem;
     }
 }
+/* Panchayat Badges */
+.panchayat-badge {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-color: var(--glass-border) !important;
+}
+
+.panchayat-badge:hover {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 98, 255, 0.2);
+}
+
+.panchayat-badge:hover i {
+    color: white !important;
+}
+
+[data-theme="dark"] .panchayat-badge {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: var(--text-dark) !important;
+}
+
+[data-theme="dark"] .panchayat-badge:hover {
+    background-color: var(--primary-color) !important;
+}
+
+/* Panchayat Rows */
+.panchayat-row {
+    transition: all 0.3s ease;
+    background: var(--card-bg);
+}
+
+.panchayat-row:hover {
+    transform: translateX(5px);
+    border-color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] .panchayat-row {
+    background: rgba(255, 255, 255, 0.03);
+}

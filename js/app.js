@@ -142,10 +142,20 @@ $(document).ready(function () {
                 'cons-wikidata': constituencyId
             };
 
-            $('.btn-wiki-popup').off('click').on('click', function () {
+            $(document).off('click', '.btn-wiki-popup').on('click', '.btn-wiki-popup', function () {
+                let url = $(this).data('url');
                 const type = $(this).data('type');
-                const url = popupMap[type];
+
+                // Fallback to popupMap if no data-url (for hardcoded buttons)
+                if (!url && type) {
+                    url = popupMap[type];
+                }
+
                 if (url) {
+                    // Mobile wikipedia optimization
+                    if (url.includes('en.wikipedia.org')) {
+                        url = url.replace('en.wikipedia.org', 'en.m.wikipedia.org');
+                    }
                     $('#infoFrame').attr('src', url);
                     $('#infoModal').modal('show');
                 } else {
@@ -219,6 +229,9 @@ $(document).ready(function () {
             // Toggle view
             $('#welcomeMessage').addClass('d-none');
             $('#mlaProfile').removeClass('d-none').addClass('animate-up');
+
+            // Administrative Divisions (Panchayats)
+            await loadPanchayats(constituencyId);
 
             // Constituency Map (Assembled Geoshapes)
             try {
@@ -298,6 +311,43 @@ $(document).ready(function () {
             });
         } else {
             $gallery.append('<p class="text-muted ps-2">No gallery images found for this constituency.</p>');
+        }
+    }
+
+    async function loadPanchayats(constituencyId) {
+        const $section = $('#panchayatSection');
+        const $list = $('#panchayatList');
+        $list.empty();
+        $section.addClass('d-none');
+
+        try {
+            const data = await WikiAPI.getConstituencyGeoshapes(constituencyId);
+            if (data && data.results.bindings.length > 0) {
+                data.results.bindings.forEach(binding => {
+                    const name = binding.itemLabel.value;
+                    const wikidataUrl = binding.item.value;
+                    const wikipediaUrl = binding.wikipedia ? binding.wikipedia.value : null;
+
+                    const row = $(`
+                        <div class="panchayat-row d-flex align-items-center justify-content-between p-2 mb-2 rounded border glass-card shadow-sm w-100">
+                            <span class="fw-bold">${name}</span>
+                            <div class="d-flex gap-2">
+                                ${wikipediaUrl ? `
+                                <button class="btn btn-sm btn-outline-primary btn-wiki-popup" data-url="${wikipediaUrl}" title="Wikipedia">
+                                    <i class="fab fa-wikipedia-w"></i>
+                                </button>` : ''}
+                                <button class="btn btn-sm btn-outline-info btn-wiki-popup" data-url="${wikidataUrl}" title="Wikidata">
+                                    <i class="fas fa-database"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    $list.append(row);
+                });
+                $section.removeClass('d-none').addClass('animate-up');
+            }
+        } catch (e) {
+            console.error("Failed to load panchayats", e);
         }
     }
 });
