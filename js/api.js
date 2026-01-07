@@ -199,7 +199,7 @@ class WikiAPI {
 
     static async getGeojson(geoshapeUrl) {
         // geoshapeUrl is like "http://commons.wikimedia.org/data/main/Data:Q7799248_Thuravoor_Grama_Panchayat.map"
-        // We need to convert it to: https://commons.wikimedia.org/wiki/Data:Q7799248_Thuravoor_Grama_Panchayat.map?action=raw
+        // We need to fetch it via the API to avoid CORS issues
 
         try {
             // Extract the Data: part from the URL
@@ -209,19 +209,31 @@ class WikiAPI {
                 if (dataPath) dataPath = 'Data:' + dataPath;
             }
 
-            // Don't encode the dataPath - it's already in the correct format with underscores
-            // Construct the wiki URL with action=raw
-            const wikiUrl = `https://commons.wikimedia.org/wiki/${dataPath}?action=raw`;
+            // Replace + with _ if present
+            dataPath = dataPath.replace(/\+/g, "_");
 
-            console.log('Fetching geoshape from:', wikiUrl);
+            // Use the Wikimedia API to fetch the content (avoids CORS)
+            const apiUrl = `https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=revisions&rvprop=content&rvslots=main&titles=${encodeURIComponent(dataPath)}&origin=*`;
 
-            const response = await fetch(wikiUrl);
+            console.log('Fetching geoshape from API:', apiUrl);
+
+            const response = await fetch(apiUrl);
             if (!response.ok) {
-                console.error('Failed to fetch geoshape:', response.status, wikiUrl);
+                console.error('Failed to fetch geoshape:', response.status);
                 return null;
             }
 
-            const geojsonData = await response.json();
+            const data = await response.json();
+            const pages = data.query.pages;
+            const pageId = Object.keys(pages)[0];
+
+            if (pageId === "-1") {
+                console.error('Page not found:', dataPath);
+                return null;
+            }
+
+            const content = pages[pageId].revisions[0].slots.main['*'];
+            const geojsonData = JSON.parse(content);
             return geojsonData;
         } catch (error) {
             console.error('Error fetching GeoJSON:', error, geoshapeUrl);
