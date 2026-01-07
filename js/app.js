@@ -14,7 +14,7 @@ $(document).ready(function () {
         if (qid) {
             const constituencyId = `http://www.wikidata.org/entity/${qid}`;
             showLoader(true);
-            await loadMLADetails(constituencyId, "Loading Profile...");
+            await loadMLADetails(constituencyId, "Loading...");
             showLoader(false);
         }
 
@@ -104,14 +104,26 @@ $(document).ready(function () {
             const cons = consData && consData.results.bindings.length > 0 ? consData.results.bindings[0] : null;
 
             // Update UI
-            $('#constituencyTitle').text(constituencyLabel === "Loading..." ? (cons ? "MLA Profile" : "Representative Profile") : constituencyLabel);
+            const finalLabel = (constituencyLabel === "Loading..." && cons) ? cons.itemLabel.value : constituencyLabel;
+            $('#constituencyTitle').text(finalLabel === "Loading..." ? "MLA Profile" : finalLabel);
             $('#mlaName').text(mla.mlaLabel.value);
             $('#mlaParty').text(mla.partyLabel ? mla.partyLabel.value : 'N/A');
-            $('#mlaConstituency').text(constituencyLabel === "Loading..." ? "Constituency" : constituencyLabel);
+            $('#mlaConstituency').text(finalLabel === "Loading..." ? "Constituency" : finalLabel);
 
             // Detailed MLA Info
+            function calculateAge(dob) {
+                const birthDate = new Date(dob);
+                const today = new Date();
+                let age = today.getFullYear() - birthDate.getFullYear();
+                const m = today.getMonth() - birthDate.getMonth();
+                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+                return age;
+            }
+
             const fields = [
-                { id: 'mlaDob', row: 'mlaDobRow', value: mla.dob ? new Date(mla.dob.value).toLocaleDateString() : null },
+                { id: 'mlaDob', row: 'mlaDobRow', value: mla.dob ? `${new Date(mla.dob.value).toLocaleDateString()} (Age: ${calculateAge(mla.dob.value)})` : null },
                 { id: 'mlaPob', row: 'mlaPobRow', value: mla.pobLabel ? mla.pobLabel.value : null },
                 { id: 'mlaOccupation', row: 'mlaOccupationRow', value: mla.occupationLabel ? mla.occupationLabel.value : null },
                 { id: 'mlaEducation', row: 'mlaEducationRow', value: mla.educationLabel ? mla.educationLabel.value : null },
@@ -155,6 +167,8 @@ $(document).ready(function () {
                     // Mobile wikipedia optimization
                     if (url.includes('en.wikipedia.org')) {
                         url = url.replace('en.wikipedia.org', 'en.m.wikipedia.org');
+                    } else if (url.includes('ml.wikipedia.org')) {
+                        url = url.replace('ml.wikipedia.org', 'ml.m.wikipedia.org');
                     }
                     $('#infoFrame').attr('src', url);
                     $('#infoModal').modal('show');
@@ -242,7 +256,9 @@ $(document).ready(function () {
             }
 
             // Constituency Gallery
-            const gallerySearch = (constituencyLabel === "Loading..." && cons) ? cons.itemLabel.value : constituencyLabel;
+            let gallerySearch = (constituencyLabel === "Loading..." && cons) ? cons.itemLabel.value : constituencyLabel;
+            // Strip common suffixes for better image search results
+            gallerySearch = gallerySearch.replace(/ State Assembly constituency/g, '').replace(/ (constituency|assembly|kerala)/gi, '');
             await loadGallery(gallerySearch);
 
             // Scroll to profile if not already there
@@ -326,15 +342,16 @@ $(document).ready(function () {
                 data.results.bindings.forEach(binding => {
                     const name = binding.itemLabel.value;
                     const wikidataUrl = binding.item.value;
-                    const wikipediaUrl = binding.wikipedia ? binding.wikipedia.value : null;
+                    const wikipediaUrl = binding.wikipedia ? binding.wikipedia.value : (binding.wikipediaML ? binding.wikipediaML.value : null);
+                    const isML = !binding.wikipedia && binding.wikipediaML;
 
                     const row = $(`
                         <div class="panchayat-row d-flex align-items-center justify-content-between p-2 mb-2 rounded border glass-card shadow-sm w-100">
                             <span class="fw-bold">${name}</span>
                             <div class="d-flex gap-2">
                                 ${wikipediaUrl ? `
-                                <button class="btn btn-sm btn-outline-primary btn-wiki-popup" data-url="${wikipediaUrl}" title="Wikipedia">
-                                    <i class="fab fa-wikipedia-w"></i>
+                                <button class="btn btn-sm ${isML ? 'btn-outline-success' : 'btn-outline-primary'} btn-wiki-popup" data-url="${wikipediaUrl}" title="${isML ? 'Malayalam Wikipedia' : 'Wikipedia'}">
+                                    <i class="fab fa-wikipedia-w"></i>${isML ? '<span class="ms-1 small">ML</span>' : ''}
                                 </button>` : ''}
                                 <button class="btn btn-sm btn-outline-info btn-wiki-popup" data-url="${wikidataUrl}" title="Wikidata">
                                     <i class="fas fa-database"></i>
