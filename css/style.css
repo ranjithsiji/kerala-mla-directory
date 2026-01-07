@@ -16,17 +16,18 @@
     --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     --glass-border: rgba(255, 255, 255, 0.1);
     --text-dark: #f5f6fa;
-    --text-muted: #a4b0be;
+    --text-muted: #dcdde1;
     --nav-bg: rgba(30, 39, 46, 0.9);
 }
 
 [data-theme="dark"] .text-muted {
-    color: #a4b0be !important;
+    color: #dcdde1 !important;
 }
 
-[data-theme="dark"] .form-label.text-muted {
-    color: #ced4da !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+[data-theme="dark"] .form-label {
+    color: #f5f6fa !important;
+    opacity: 0.9;
+    letter-spacing: 0.5px;
 }
 
 body {
