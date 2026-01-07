@@ -30,7 +30,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark fixed-top sticky-nav">
         <div class="container">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="./">
                 <span class="brand-text">Kerala<span class="text-primary">MLA</span></span>
             </a>
             <div class="ms-auto d-flex align-items-center">
@@ -44,7 +44,8 @@
     <!-- Hero Section -->
     <header class="hero-section">
         <div class="container text-center">
-            <h1 class="display-4 fw-bold mb-3 animate-up">Kerala Legislative Assembly</h1>
+            <h1 class="display-4 fw-bold mb-3 animate-up"><a href="./" class="text-decoration-none text-reset">Kerala
+                    Legislative Assembly</a></h1>
             <p class="lead mb-0 animate-up delay-1">Explore and connect with your representatives from across God's Own
                 Country.</p>
         </div>
@@ -251,6 +252,36 @@
                         <div id="modalInfoContent" class="p-4 p-md-5">
                             <h2 id="modalTitle" class="fw-bold mb-4"></h2>
                             <div id="modalBodyText"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gallery Slideshow Modal -->
+        <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content bg-dark">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0 position-relative">
+                        <button
+                            class="btn btn-light position-absolute top-50 start-0 translate-middle-y ms-3 rounded-circle"
+                            id="prevImage" style="z-index: 10; width: 50px; height: 50px;">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <img id="galleryImage" src="" class="img-fluid w-100"
+                            style="max-height: 80vh; object-fit: contain;" alt="Gallery Image">
+                        <button
+                            class="btn btn-light position-absolute top-50 end-0 translate-middle-y me-3 rounded-circle"
+                            id="nextImage" style="z-index: 10; width: 50px; height: 50px;">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <div
+                            class="position-absolute bottom-0 start-50 translate-middle-x mb-3 text-white bg-dark bg-opacity-75 px-3 py-1 rounded">
+                            <span id="imageCounter">1 / 6</span>
                         </div>
                     </div>
                 </div>

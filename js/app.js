@@ -393,6 +393,9 @@ $(document).ready(function () {
         }
     }
 
+    let galleryImages = [];
+    let currentImageIndex = 0;
+
     async function loadGallery(label) {
         const $gallery = $('#constituencyGallery');
         $gallery.empty();
@@ -400,18 +403,60 @@ $(document).ready(function () {
         // Try getting images from Wikimedia Commons
         const images = await WikiAPI.getConstituencyImages(label);
         if (images && images.length > 0) {
-            images.slice(0, 6).forEach(url => {
+            galleryImages = images.slice(0, 6);
+            galleryImages.forEach((url, index) => {
                 const thumbUrl = WikiAPI.getThumbnailUrl(url, 400);
                 $gallery.append(`
                     <div class="col-md-4">
-                        <img src="${thumbUrl}" class="gallery-img" alt="${label}">
+                        <img src="${thumbUrl}" class="gallery-img" alt="${label}" data-index="${index}" style="cursor: pointer;">
                     </div>
                 `);
+            });
+
+            // Add click handlers for gallery images
+            $('.gallery-img').on('click', function () {
+                currentImageIndex = parseInt($(this).data('index'));
+                showGalleryImage(currentImageIndex);
+                $('#galleryModal').modal('show');
             });
         } else {
             $gallery.append('<p class="text-muted ps-2">No gallery images found for this constituency.</p>');
         }
     }
+
+    function showGalleryImage(index) {
+        if (galleryImages.length === 0) return;
+
+        currentImageIndex = index;
+        if (currentImageIndex < 0) currentImageIndex = galleryImages.length - 1;
+        if (currentImageIndex >= galleryImages.length) currentImageIndex = 0;
+
+        const fullImageUrl = WikiAPI.getThumbnailUrl(galleryImages[currentImageIndex], 1200);
+        $('#galleryImage').attr('src', fullImageUrl);
+        $('#imageCounter').text(`${currentImageIndex + 1} / ${galleryImages.length}`);
+    }
+
+    // Gallery navigation
+    $('#prevImage').on('click', function () {
+        showGalleryImage(currentImageIndex - 1);
+    });
+
+    $('#nextImage').on('click', function () {
+        showGalleryImage(currentImageIndex + 1);
+    });
+
+    // Keyboard navigation for gallery
+    $(document).on('keydown', function (e) {
+        if ($('#galleryModal').hasClass('show')) {
+            if (e.key === 'ArrowLeft') {
+                showGalleryImage(currentImageIndex - 1);
+            } else if (e.key === 'ArrowRight') {
+                showGalleryImage(currentImageIndex + 1);
+            } else if (e.key === 'Escape') {
+                $('#galleryModal').modal('hide');
+            }
+        }
+    });
 
     async function loadPanchayats(constituencyId) {
         const $section = $('#panchayatSection');
