@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerala MLA Profiles | Assembly Constituencies of Kerala</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hdNHav5wAAv4nzpCrOa9cR1RAkycuHA=" crossorigin="" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="description"
+        content="Explore details of Members of the Legislative Assembly (MLAs) in Kerala, including constituency information, politician profiles, and geographical data.">
+</head>
+
+<body>
+
+    <div class="loader-wrapper" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top sticky-nav">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <span class="brand-text">Kerala<span class="text-primary">MLA</span></span>
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <button id="themeToggle" class="btn btn-link nav-link text-dark me-2">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3 animate-up">Kerala Legislative Assembly</h1>
+            <p class="lead mb-0 animate-up delay-1">Explore and connect with your representatives from across God's Own
+                Country.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div id="selectionSection" class="row justify-content-center mb-5 animate-up delay-1">
+            <div class="col-lg-10">
+                <div class="glass-card selection-card p-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">District</label>
+                            <select id="districtSelect" class="form-select select-custom w-100">
+                                <option value="">Select District</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold small text-muted text-uppercase mb-2">Constituency</label>
+                            <select id="constituencySelect" class="form-select select-custom w-100" disabled>
+                                <option value="">Select Constituency</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label d-none d-md-block" style="visibility: hidden;">Action</label>
+                            <button id="loadProfileBtn" class="btn btn-primary w-100 py-2 fw-bold ripple">
+                                <i class="fas fa-eye me-2"></i>View Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="welcomeMessage" class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-map-marked-alt mb-4"></i>
+                <h3>Select a district and constituency to begin</h3>
+                <p class="text-muted">Get detailed profiles of MLAs, constituency insights, and more.</p>
+            </div>
+        </div>
+
+        <div id="mlaProfile" class="d-none">
+            <div class="text-center mb-5">
+                <h1 id="constituencyTitle" class="display-5 fw-bold text-primary">Constituency Name</h1>
+                <hr class="w-25 mx-auto">
+            </div>
+            <div class="row g-4">
+                <!-- Profile Sidebar -->
+                <div class="col-lg-4">
+                    <div class="glass-card profile-card text-center sticky-info">
+                        <div class="mla-image-container mb-4">
+                            <img id="mlaImage" src="" alt="MLA Image" class="img-fluid rounded-circle mla-placeholder">
+                        </div>
+                        <h2 id="mlaName" class="h3 fw-bold mb-1">MLA Name</h2>
+                        <p id="mlaParty" class="text-primary fw-600 mb-3">Party Name</p>
+                        <div class="badge-container mb-4">
+                            <span id="mlaConstituency" class="badge bg-light text-dark">Constituency</span>
+                        </div>
+                        <div class="mla-info-list text-start mt-4 px-2">
+                            <div id="mlaDobRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Born:</span>
+                                <span id="mlaDob" class="ms-1"></span>
+                            </div>
+                            <div id="mlaPobRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Birthplace:</span>
+                                <span id="mlaPob" class="ms-1"></span>
+                            </div>
+                            <div id="mlaOccupationRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Occupation:</span>
+                                <span id="mlaOccupation" class="ms-1"></span>
+                            </div>
+                            <div id="mlaEducationRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Education:</span>
+                                <span id="mlaEducation" class="ms-1"></span>
+                            </div>
+                            <div id="mlaLanguagesRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Languages:</span>
+                                <span id="mlaLanguages" class="ms-1 text-end"></span>
+                            </div>
+                            <div id="mlaDegreeRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Degree:</span>
+                                <span id="mlaDegree" class="ms-1 text-end"></span>
+                            </div>
+                            <div id="mlaResidenceRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Residence:</span>
+                                <span id="mlaResidence" class="ms-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="social-links d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                            <button class="btn btn-primary btn-sm btn-wiki-popup" data-type="mla-wikipedia"><i
+                                    class="fab fa-wikipedia-w me-2"></i>Wikipedia</button>
+                            <button class="btn btn-info btn-sm btn-wiki-popup text-white" data-type="mla-wikidata"><i
+                                    class="fas fa-database me-2"></i>Wikidata</button>
+                        </div>
+
+                        <div class="thick-divider my-4"></div>
+
+                        <h5 class="fw-bold mb-3">Constituency Info</h5>
+                        <div class="mla-info-list text-start px-2 mb-3">
+                            <div id="consDistrictRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">District:</span>
+                                <span id="consDistrict" class="ms-1"></span>
+                            </div>
+                            <div id="consInceptionRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Inception:</span>
+                                <span id="consInception" class="ms-1"></span>
+                            </div>
+                            <div id="consAreaRow" class="info-row d-none mb-2">
+                                <span class="fw-bold">Area:</span>
+                                <span id="consArea" class="ms-1"></span>
+                            </div>
+                        </div>
+
+                        <div class="social-links d-flex justify-content-center gap-2 mt-3 flex-wrap">
+                            <button class="btn btn-outline-primary btn-sm btn-wiki-popup" data-type="cons-wikipedia"><i
+                                    class="fab fa-wikipedia-w me-2"></i>Wikipedia</button>
+                            <button class="btn btn-outline-info btn-sm btn-wiki-popup" data-type="cons-wikidata"><i
+                                    class="fas fa-database me-2"></i>Wikidata</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Content -->
+                <div class="col-lg-8">
+                    <div class="glass-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold section-title mb-0">About Representative</h4>
+                            <div class="intro-links">
+                                <a id="mlaWikiLinkMini" target="_blank" class="text-primary me-3" title="Wikipedia"><i
+                                        class="fab fa-wikipedia-w"></i></a>
+                                <a id="mlaWikidataLinkMini" target="_blank" class="text-info" title="Wikidata"><i
+                                        class="fas fa-database"></i></a>
+                            </div>
+                        </div>
+                        <div id="mlaDescription" class="description-text">
+                            <!-- Description from Wikipedia -->
+                        </div>
+                    </div>
+
+                    <div class="glass-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h4 class="fw-bold section-title mb-0">Constituency Highlight</h4>
+                            <div class="intro-links">
+                                <a id="consWikiLinkMini" target="_blank" class="text-primary me-3" title="Wikipedia"><i
+                                        class="fab fa-wikipedia-w"></i></a>
+                                <a id="consWikidataLinkMini" target="_blank" class="text-info" title="Wikidata"><i
+                                        class="fas fa-database"></i></a>
+                            </div>
+                        </div>
+                        <div id="constituencyDescription" class="description-text">
+                            <!-- Description from Wikipedia -->
+                        </div>
+                    </div>
+
+                    <div class="glass-card mb-4">
+                        <h4 class="fw-bold mb-3 section-title">Constituency Map</h4>
+                        <div id="constituencyMapContainer" class="map-container rounded overflow-hidden">
+                            <div id="map" style="width: 100%; height: 400px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="glass-card">
+                        <h4 class="fw-bold mb-3 section-title">Constituency Gallery</h4>
+                        <div id="constituencyGallery" class="row g-2">
+                            <!-- Gallery from Wikimedia Commons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer py-4 mt-5">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">Data sourced from <a href="https://www.wikidata.org"
+                    target="_blank">Wikidata</a>, <a href="https://www.wikipedia.org" target="_blank">Wikipedia</a>, and
+                <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a>.
+            </p>
+        </div>
+        <!-- Info Modal -->
+        <div class="modal fade" id="infoModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content glass-card p-0 overflow-hidden border-0">
+                    <div class="modal-header border-0 pb-0 d-flex justify-content-end p-3"
+                        style="position: absolute; width: 100%; z-index: 10;">
+                        <button type="button" class="btn-close bg-white shadow-sm p-3 rounded-circle"
+                            data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0" style="height: 85vh;">
+                        <iframe id="infoFrame" src="" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script src="js/api.js"></script>
+        <script src="js/app.js"></script>
+</body>
+
+</html>
