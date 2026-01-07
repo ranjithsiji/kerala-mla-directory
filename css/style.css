@@ -466,3 +466,82 @@ body {
 #modalBodyText .wikibase-statementgroupview {
     margin-bottom: 30px;
 }
+
+/* Enhanced Wikidata Modal Styling */
+#modalBodyText .wikibase-statementgroupview-property-label a {
+    color: var(--primary-color) !important;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+#modalBodyText .wikibase-statementgroupview-property-label a:hover {
+    text-decoration: underline;
+}
+
+#modalBodyText .wikibase-snakview-value a {
+    color: #0066cc;
+    text-decoration: none;
+}
+
+#modalBodyText .wikibase-snakview-value a:hover {
+    text-decoration: underline;
+}
+
+#modalBodyText .wikibase-statementview-mainsnak {
+    background: rgba(0, 98, 255, 0.03);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+[data-theme="dark"] #modalBodyText .wikibase-statementview-mainsnak {
+    background: rgba(0, 210, 255, 0.05);
+}
+
+#modalBodyText .wikibase-statementgrouplistview {
+    padding: 0;
+}
+
+#modalBodyText .wikibase-statementgroupview {
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+#modalBodyText .wikibase-statementgroupview:last-child {
+    border-bottom: none;
+}
+
+/* Hide edit buttons and other UI elements */
+#modalBodyText .wikibase-toolbar-button,
+#modalBodyText .wikibase-addtoolbar,
+#modalBodyText .wb-editsection {
+    display: none !important;
+}
+
+/* Improve spacing */
+#modalBodyText .wikibase-statementlistview {
+    padding-left: 0;
+}
+
+#modalBodyText .wikibase-snakview {
+    margin-bottom: 8px;
+}
+
+/* Better table styling for Wikidata */
+#modalBodyText table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+}
+
+#modalBodyText table td,
+#modalBodyText table th {
+    padding: 8px 12px;
+    border: 1px solid var(--glass-border);
+}
+
+[data-theme="dark"] #modalBodyText table td,
+[data-theme="dark"] #modalBodyText table th {
+    border-color: rgba(255, 255, 255, 0.1);
+}

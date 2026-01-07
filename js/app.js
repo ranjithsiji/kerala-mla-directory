@@ -310,8 +310,7 @@ $(document).ready(function () {
 
             // Constituency Map (Assembled Geoshapes)
             try {
-                // await initMap(constituencyId); 
-                // User asked not to load map part for now
+                await initMap(constituencyId);
             } catch (e) {
                 console.error("Map initialization failed", e);
             }
