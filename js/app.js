@@ -354,12 +354,13 @@ $(document).ready(function () {
             for (const item of geoData.results.bindings) {
                 const geoshapeUrl = item.geoshape.value;
                 const geojson = await WikiAPI.getGeojson(geoshapeUrl);
-                if (geojson && geojson.data) {
-                    L.geoJSON(geojson.data, {
+                if (geojson) {
+                    L.geoJSON(geojson, {
                         style: {
                             color: '#0062ff',
                             weight: 2,
-                            fillOpacity: 0.3
+                            fillColor: '#0062ff',
+                            fillOpacity: 0.2
                         }
                     }).bindPopup(item.itemLabel.value).addTo(layers);
                 }

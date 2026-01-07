@@ -199,16 +199,29 @@ class WikiAPI {
 
     static async getGeojson(geoshapeUrl) {
         // geoshapeUrl is like "http://commons.wikimedia.org/data/main/Data:Kerala/Kannur/Dharmadom.map"
-        const titles = decodeURIComponent(geoshapeUrl.split('/data/main/').pop());
-        const url = `https://commons.wikimedia.org/w/api.php?action=query&format=json&prop=revisions&rvprop=content&titles=${encodeURIComponent(titles)}&origin=*`;
+        // We need to convert it to: https://commons.wikimedia.org/wiki/Data:Kerala/Kannur/Dharmadom.map?action=raw
+
         try {
-            const response = await fetch(url);
-            const data = await response.json();
-            const pages = data.query.pages;
-            const pageId = Object.keys(pages)[0];
-            if (pageId === "-1") return null;
-            const content = pages[pageId].revisions[0]['*'];
-            return JSON.parse(content);
+            // Extract the Data: part from the URL
+            let dataPath = geoshapeUrl.split('/data/main/').pop();
+            if (!dataPath) {
+                dataPath = geoshapeUrl.split('Data:').pop();
+                if (dataPath) dataPath = 'Data:' + dataPath;
+            }
+
+            // Construct the wiki URL with action=raw
+            const wikiUrl = `https://commons.wikimedia.org/wiki/${dataPath}?action=raw`;
+
+            console.log('Fetching geoshape from:', wikiUrl);
+
+            const response = await fetch(wikiUrl);
+            if (!response.ok) {
+                console.error('Failed to fetch geoshape:', response.status);
+                return null;
+            }
+
+            const geojsonData = await response.json();
+            return geojsonData;
         } catch (error) {
             console.error('Error fetching GeoJSON:', error);
             return null;
