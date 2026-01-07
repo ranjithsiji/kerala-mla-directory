@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kerala MLA Directory</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Kerala Legislative Assembly</h1>
+            <p class="subtitle">Explore your representatives</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="selector-section">
+            <div class="selector-card">
+                <h2>Find Your MLA</h2>
+                <div class="form-group">
+                    <label for="district">Select District:</label>
+                    <select id="district" class="form-control">
+                        <option value="">-- Choose District --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="constituency">Select Constituency:</label>
+                    <select id="constituency" class="form-control" disabled>
+                        <option value="">-- First select a district --</option>
+                    </select>
+                </div>
+                <button id="searchBtn" class="btn-primary" disabled>View MLA Profile</button>
+            </div>
+        </section>
+
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading MLA details...</p>
+        </div>
+
+        <section id="profileSection" class="profile-section hidden">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-image-container">
+                        <img id="mlaImage" src="" alt="MLA Photo" class="profile-image">
+                    </div>
+                    <div class="profile-info">
+                        <h2 id="mlaName"></h2>
+                        <p class="constituency-name" id="constituencyName"></p>
+                        <div class="meta-info">
+                            <span class="badge" id="partyBadge"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-body">
+                    <h3>About</h3>
+                    <div id="mlaDescription" class="description"></div>
+                    
+                    <div id="additionalInfo" class="additional-info"></div>
+                </div>
+            </div>
+
+            <div class="constituency-section">
+                <h3>Constituency Gallery</h3>
+                <div id="constituencyImages" class="image-gallery"></div>
+            </div>
+
+            <div id="mapSection" class="map-section hidden">
+                <h3>Constituency Map</h3>
+                <div id="constituencyMap" class="map-container"></div>
+            </div>
+        </section>
+
+        <div id="errorMessage" class="error-message hidden"></div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Data sourced from <a href="https://www.wikidata.org" target="_blank">Wikidata</a>, 
+            <a href="https://wikipedia.org" target="_blank">Wikipedia</a>, and 
+            <a href="https://commons.wikimedia.org" target="_blank">Wikimedia Commons</a></p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
