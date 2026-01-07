@@ -233,7 +233,17 @@ class WikiAPI {
             }
 
             const content = pages[pageId].revisions[0].slots.main['*'];
+            console.log('Raw content:', content.substring(0, 200)); // Log first 200 chars
+
             const geojsonData = JSON.parse(content);
+            console.log('Parsed GeoJSON structure:', Object.keys(geojsonData));
+
+            // The data might be wrapped in a 'data' property
+            if (geojsonData.data) {
+                console.log('Using geojsonData.data');
+                return geojsonData.data;
+            }
+
             return geojsonData;
         } catch (error) {
             console.error('Error fetching GeoJSON:', error, geoshapeUrl);
