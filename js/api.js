@@ -122,16 +122,39 @@ class WikiAPI {
         }
     }
 
-    static async getWikidataEntity(qid) {
-        const url = `https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`;
+    static async getWikidataFullHTML(qid) {
+        const url = `https://www.wikidata.org/w/api.php?action=parse&formatversion=2&page=${qid}&prop=text&format=json&origin=*`;
         try {
             const response = await fetch(url);
             const data = await response.json();
-            return data.entities[qid];
+            if (data.parse) {
+                return data.parse.text;
+            }
+            return null;
         } catch (error) {
-            console.error('Error fetching Wikidata entity:', error);
+            console.error('Error fetching Wikidata full HTML:', error);
             return null;
         }
+    }
+
+    static async getWikidataClaims(qid) {
+        const query = `
+            SELECT ?wdLabel ?ooLabel ?o
+            WHERE {
+                VALUES (?s) { (wd:${qid}) }
+                ?s ?wdt ?o .
+                ?wd wikibase:directClaim ?wdt .
+                ?wd rdfs:label ?wdLabel .
+                OPTIONAL {
+                    ?o rdfs:label ?oLabel .
+                    FILTER (lang(?oLabel) = "en")
+                }
+                FILTER (lang(?wdLabel) = "en")
+                BIND (COALESCE(?oLabel, ?o) AS ?ooLabel)
+            }
+            ORDER BY xsd:integer(STRAFTER(STR(?wd), "http://www.wikidata.org/entity/P"))
+        `;
+        return await this.fetchWikidata(query);
     }
 
     static async getConstituencyDetails(constituencyId) {

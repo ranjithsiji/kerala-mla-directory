@@ -176,16 +176,17 @@ $(document).ready(function () {
                         const title = decodeURIComponent(url.split('/wiki/').pop());
                         const data = await WikiAPI.getWikipediaFullHTML(lang, title);
                         if (data) {
-                            $('#modalTitle').html(data.title);
+                            const externalUrl = `https://${lang}.wikipedia.org/wiki/${title}`;
+                            $('#modalTitle').html(`${data.title} <a href="${externalUrl}" target="_blank" class="ms-2 fs-6 text-muted" title="View on Wikipedia"><i class="fas fa-external-link-alt"></i></a>`);
                             $('#modalBodyText').html(data.text);
                             // Fix links to open in new tab within the injected HTML
                             $('#modalBodyText a').attr('target', '_blank');
                         }
                     } else if (url.includes('wikidata.org')) {
                         const qid = url.split('/').pop().split('#')[0];
-                        const entity = await WikiAPI.getWikidataEntity(qid);
-                        if (entity) {
-                            renderWikidata(entity);
+                        const html = await WikiAPI.getWikidataFullHTML(qid);
+                        if (html) {
+                            renderWikidata(qid, html);
                         }
                     }
                 } catch (e) {
@@ -196,45 +197,45 @@ $(document).ready(function () {
                 }
             });
 
-            function renderWikidata(entity) {
-                const label = entity.labels.en ? entity.labels.en.value : (entity.labels.ml ? entity.labels.ml.value : 'Entity');
-                const description = entity.descriptions.en ? entity.descriptions.en.value : (entity.descriptions.ml ? entity.descriptions.ml.value : '');
-
-                $('#modalTitle').text(label);
-
-                let html = `<p class="lead text-muted">${description}</p>`;
-                html += `<div class="table-responsive mt-4"><table class="table table-hover border"><tbody>`;
-
-                // Key properties to show (just a few major ones for brevity and clarity)
-                const majorProps = {
-                    'P31': 'Instance of',
-                    'P131': 'Located in',
-                    'P569': 'Born',
-                    'P571': 'Inception',
-                    'P2046': 'Area',
-                    'P102': 'Political party',
-                    'P39': 'Position held'
-                };
-
-                for (const pid in majorProps) {
-                    if (entity.claims[pid]) {
-                        const claim = entity.claims[pid][0];
-                        let value = 'Value';
-                        if (claim.mainsnak.datavalue) {
-                            const dv = claim.mainsnak.datavalue;
-                            if (dv.type === 'string') value = dv.value;
-                            else if (dv.type === 'wikibase-entityid') value = dv.value.id; // Could fetch label but keeping simple
-                            else if (dv.type === 'time') value = new Date(dv.value.time.replace('+', '')).toLocaleDateString();
-                            else if (dv.type === 'quantity') value = `${parseFloat(dv.value.amount).toLocaleString()} ${dv.value.unit.split('/').pop() === 'Q712226' ? 'km²' : ''}`;
-                        }
-                        html += `<tr><th style="width: 30%">${majorProps[pid]}</th><td>${value}</td></tr>`;
-                    }
-                }
-
-                html += `</tbody></table></div>`;
-                html += `<div class="mt-4"><a href="https://www.wikidata.org/wiki/${entity.id}" target="_blank" class="btn btn-outline-info btn-sm">View full details on Wikidata</a></div>`;
-
+            async function renderWikidata(qid, html) {
+                const externalUrl = `https://www.wikidata.org/wiki/${qid}`;
+                $('#modalTitle').html(`${qid} <a href="${externalUrl}" target="_blank" class="ms-2 fs-6 text-muted" title="View on Wikidata"><i class="fas fa-external-link-alt"></i></a>`);
                 $('#modalBodyText').html(html);
+
+                // Intercept links to keep them in the modal
+                $('#modalBodyText a').each(function () {
+                    let href = $(this).attr('href');
+                    if (href) {
+                        // Check for Wikidata entity links
+                        if (href.startsWith('/wiki/Q') || href.startsWith('/wiki/P') || href.includes('wikidata.org/wiki/Q') || href.includes('wikidata.org/wiki/P')) {
+                            const newQid = href.split('/').pop().split('#')[0];
+                            $(this).attr('href', 'javascript:void(0)');
+                            $(this).on('click', function (e) {
+                                e.preventDefault();
+                                loadEntityInModal(newQid);
+                            });
+                        } else {
+                            $(this).attr('target', '_blank');
+                        }
+                    }
+                });
+            }
+
+            async function loadEntityInModal(qid) {
+                $('#modalLoader').removeClass('d-none');
+                $('#modalInfoContent').addClass('d-none');
+
+                try {
+                    const html = await WikiAPI.getWikidataFullHTML(qid);
+                    if (html) {
+                        renderWikidata(qid, html);
+                    }
+                } catch (e) {
+                    $('#modalBodyText').text('Error loading entity.');
+                } finally {
+                    $('#modalLoader').addClass('d-none');
+                    $('#modalInfoContent').removeClass('d-none');
+                }
             }
 
             $('#infoModal').on('hidden.bs.modal', function () {

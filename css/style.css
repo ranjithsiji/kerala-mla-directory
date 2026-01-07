@@ -422,3 +422,47 @@ body {
     border-radius: 8px;
     margin: 10px 0;
 }
+
+/* Wikidata Specific Modal Styling */
+#modalBodyText .wikibase-entityview-main {
+    padding: 0;
+}
+
+#modalBodyText .wikibase-statementgrouplistview .wikibase-statementgroupview-property .wikibase-statementgroupview-property-label {
+    float: none;
+    width: 100%;
+    font-weight: bold;
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--glass-border);
+    padding: 10px 0;
+    margin-bottom: 10px;
+}
+
+#modalBodyText .wikibase-statementlistview {
+    margin-left: 0;
+}
+
+#modalBodyText .wikibase-statementview {
+    margin-bottom: 15px;
+    padding-left: 15px;
+    border-left: 2px solid var(--glass-border);
+}
+
+#modalBodyText .wikibase-snakview-value-container {
+    padding-left: 0;
+}
+
+#modalBodyText .wikibase-entitytermsview,
+#modalBodyText .wikibase-entityview-side,
+#modalBodyText .mw-kartographer-map img,
+#modalBodyText .wikibase-toolbar-container {
+    display: none !important;
+}
+
+[data-theme="dark"] #modalBodyText .wikibase-statementgroupview-property-label {
+    color: #00d2ff;
+}
+
+#modalBodyText .wikibase-statementgroupview {
+    margin-bottom: 30px;
+}
