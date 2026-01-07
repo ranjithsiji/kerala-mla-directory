@@ -198,8 +198,8 @@ class WikiAPI {
     }
 
     static async getGeojson(geoshapeUrl) {
-        // geoshapeUrl is like "http://commons.wikimedia.org/data/main/Data:Kerala/Kannur/Dharmadom.map"
-        // We need to convert it to: https://commons.wikimedia.org/wiki/Data:Kerala/Kannur/Dharmadom.map?action=raw
+        // geoshapeUrl is like "http://commons.wikimedia.org/data/main/Data:Q7799248_Thuravoor_Grama_Panchayat.map"
+        // We need to convert it to: https://commons.wikimedia.org/wiki/Data:Q7799248_Thuravoor_Grama_Panchayat.map?action=raw
 
         try {
             // Extract the Data: part from the URL
@@ -209,6 +209,7 @@ class WikiAPI {
                 if (dataPath) dataPath = 'Data:' + dataPath;
             }
 
+            // Don't encode the dataPath - it's already in the correct format with underscores
             // Construct the wiki URL with action=raw
             const wikiUrl = `https://commons.wikimedia.org/wiki/${dataPath}?action=raw`;
 
@@ -216,14 +217,14 @@ class WikiAPI {
 
             const response = await fetch(wikiUrl);
             if (!response.ok) {
-                console.error('Failed to fetch geoshape:', response.status);
+                console.error('Failed to fetch geoshape:', response.status, wikiUrl);
                 return null;
             }
 
             const geojsonData = await response.json();
             return geojsonData;
         } catch (error) {
-            console.error('Error fetching GeoJSON:', error);
+            console.error('Error fetching GeoJSON:', error, geoshapeUrl);
             return null;
         }
     }
