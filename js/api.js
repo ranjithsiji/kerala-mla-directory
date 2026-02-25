@@ -9,14 +9,9 @@ class WikiAPI {
     }
 
     static async fetchWikidata(sparqlQuery) {
-        const url = `${WIKIDATA_SPARQL_ENDPOINT}?query=${encodeURIComponent(sparqlQuery)}&format=json`;
+        const url = `${WIKIDATA_SPARQL_ENDPOINT}?query=${encodeURIComponent(sparqlQuery)}&format=json&origin=*`;
         try {
-            const response = await fetch(url, {
-                headers: {
-                    'Accept': 'application/sparql-results+json',
-                    'User-Agent': 'KeralaMLAApp/1.0 (https://github.com/alphaf42/keralamla)'
-                }
-            });
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Wikidata fetch failed');
             return await response.json();
         } catch (error) {
